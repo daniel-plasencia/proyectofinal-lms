@@ -4,62 +4,33 @@ import com.tecsup.app.micro.user.domain.model.User;
 import com.tecsup.app.micro.user.presentation.dto.CreateUserRequest;
 import com.tecsup.app.micro.user.presentation.dto.UpdateUserRequest;
 import com.tecsup.app.micro.user.presentation.dto.UserResponse;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
- * Mapper entre DTOs de presentación y modelo de dominio
+ * Mapper entre DTOs de presentación y modelo de dominio usando MapStruct
  */
-@Component
-public class UserDtoMapper {
+@Mapper(componentModel = "spring")
+public interface UserDtoMapper {
     
     /**
      * Convierte CreateUserRequest a User de dominio
      */
-    public User toDomain(CreateUserRequest request) {
-        return User.builder()
-                .name(request.getName())
-                .email(request.getEmail())
-                .phone(request.getPhone())
-                .address(request.getAddress())
-                .build();
-    }
+    User toDomain(CreateUserRequest request);
     
     /**
      * Convierte UpdateUserRequest a User de dominio
      */
-    public User toDomain(UpdateUserRequest request) {
-        return User.builder()
-                .name(request.getName())
-                .email(request.getEmail())
-                .phone(request.getPhone())
-                .address(request.getAddress())
-                .build();
-    }
+    User toDomain(UpdateUserRequest request);
     
     /**
      * Convierte User de dominio a UserResponse
      */
-    public UserResponse toResponse(User user) {
-        return UserResponse.builder()
-                .id(user.getId())
-                .name(user.getName())
-                .email(user.getEmail())
-                .phone(user.getPhone())
-                .address(user.getAddress())
-                .createdAt(user.getCreatedAt())
-                .updatedAt(user.getUpdatedAt())
-                .build();
-    }
+    UserResponse toResponse(User user);
     
     /**
      * Convierte lista de Users a lista de UserResponse
      */
-    public List<UserResponse> toResponseList(List<User> users) {
-        return users.stream()
-                .map(this::toResponse)
-                .collect(Collectors.toList());
-    }
+    List<UserResponse> toResponseList(List<User> users);
 }
