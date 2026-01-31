@@ -182,6 +182,53 @@ volumes:
 docker-compose up -d
 ```
 
+### Configuración de invocación a microservicio user-service
+
+<img src="images/restTemplate_implementation.png" alt="RestTemplate" />
+
+- En `src/main/resources/application.properties`, se configura la URL del user-service:
+
+```properties
+# ============================================
+# USER SERVICE URL (for inter-service communication)
+# ============================================
+user.service.url=http://localhost:8081
+```
+
+- Crear una instancia de restTemplate en BeanConfig.java 
+
+```java
+package com.tecsup.app.micro.product.infrastructure.config;
+
+
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestTemplate;
+
+import java.time.Duration;
+
+@Configuration
+public class BeanConfig {
+
+    @Bean
+    public RestTemplate restTemplate(RestTemplateBuilder builder) {
+        return builder
+                .connectTimeout(Duration.ofSeconds(5))
+                .readTimeout(Duration.ofSeconds(5))
+                .build();
+    }
+}
+```
+
+- Crear UserDTO.java
+
+```java
+
+```
+
+
+
 ### Ejecutar la Aplicación
 
 ```bash
