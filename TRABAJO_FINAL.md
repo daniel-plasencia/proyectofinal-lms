@@ -249,6 +249,5 @@ CREATE TABLE notifications (
 
 - Repositorio con los 5 microservicios  
 - Docker Compose con Kafka + Bases de datos  
-- Documentación técnica  
 - Pruebas en Postman/Swagger  
 - Flujo end-to-end: matrícula → pago → confirmación → notificación  
