@@ -2,7 +2,7 @@
 
 
 
-### Desde la carpeta microservices-lab1
+### Desde la carpeta del microservices
 ```
 docker-compose up -d
 ```
