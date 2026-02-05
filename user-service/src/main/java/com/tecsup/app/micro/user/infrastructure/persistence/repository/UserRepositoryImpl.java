@@ -70,24 +70,20 @@ public class UserRepositoryImpl implements UserRepository {
     private User toDomain(UserEntity entity) {
         return User.builder()
                 .id(entity.getId())
-                .name(entity.getName())
+                .fullName(entity.getFullName())
                 .email(entity.getEmail())
-                .phone(entity.getPhone())
-                .address(entity.getAddress())
+                .status(entity.getStatus())
                 .createdAt(entity.getCreatedAt())
-                .updatedAt(entity.getUpdatedAt())
                 .build();
     }
-    
+
     private UserEntity toEntity(User user) {
         return UserEntity.builder()
                 .id(user.getId())
-                .name(user.getName())
+                .fullName(user.getFullName())
                 .email(user.getEmail())
-                .phone(user.getPhone())
-                .address(user.getAddress())
+                .status(user.getStatus())
                 .createdAt(user.getCreatedAt())
-                .updatedAt(user.getUpdatedAt())
                 .build();
     }
 }

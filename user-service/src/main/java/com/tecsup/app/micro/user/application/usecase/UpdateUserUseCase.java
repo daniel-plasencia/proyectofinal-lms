@@ -28,7 +28,7 @@ public class UpdateUserUseCase {
         
         // Validar datos del usuario
         if (!userDetails.isValid()) {
-            throw new InvalidUserDataException("Invalid user data. Name and valid email are required.");
+            throw new InvalidUserDataException("Invalid user data. Full name and valid email are required.");
         }
         
         // Si el email cambió, verificar que no exista en otro usuario
@@ -39,10 +39,9 @@ public class UpdateUserUseCase {
         }
         
         // Actualizar campos
-        existingUser.setName(userDetails.getName());
+        existingUser.setFullName(userDetails.getFullName());
         existingUser.setEmail(userDetails.getEmail());
-        existingUser.setPhone(userDetails.getPhone());
-        existingUser.setAddress(userDetails.getAddress());
+        existingUser.setStatus(userDetails.getStatus());
         
         // Guardar cambios
         User updatedUser = userRepository.save(existingUser);

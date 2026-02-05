@@ -8,19 +8,17 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 /**
- * DTO de respuesta de usuario
+ * DTO de respuesta de usuario (TRABAJO_FINAL.md: full_name, email, status, created_at)
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserResponse {
-    
+
     private Long id;
-    private String name;
+    private String fullName;
     private String email;
-    private String phone;
-    private String address;
+    private String status;
     private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 }

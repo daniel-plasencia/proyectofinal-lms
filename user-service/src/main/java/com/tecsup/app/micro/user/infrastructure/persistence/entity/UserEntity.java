@@ -10,12 +10,12 @@ import java.time.LocalDateTime;
 
 /**
  * Entidad JPA de Usuario
- * Esta clase pertenece a la capa de infraestructura y maneja la persistencia
+ * Alineada con TRABAJO_FINAL.md (user-script-1.sql): full_name, email, status, created_at
  */
 @Entity
 @Table(name = "users", indexes = {
     @Index(name = "idx_users_email", columnList = "email", unique = true),
-    @Index(name = "idx_users_name", columnList = "name"),
+    @Index(name = "idx_users_full_name", columnList = "full_name"),
     @Index(name = "idx_users_created_at", columnList = "created_at")
 })
 @Data
@@ -23,38 +23,30 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserEntity {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
-    @Column(nullable = false, length = 100)
-    private String name;
-    
-    @Column(nullable = false, unique = true, length = 100)
+
+    @Column(name = "full_name", nullable = false, length = 150)
+    private String fullName;
+
+    @Column(nullable = false, unique = true, length = 120)
     private String email;
-    
-    @Column(length = 20)
-    private String phone;
-    
-    @Column(length = 255)
-    private String address;
-    
+
+    @Column(length = 30)
+    private String status;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
-    
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-    
+
     @PrePersist
     protected void onCreate() {
-        LocalDateTime now = LocalDateTime.now();
-        createdAt = now;
-        updatedAt = now;
-    }
-    
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+        if (status == null) {
+            status = "ACTIVE";
+        }
     }
 }

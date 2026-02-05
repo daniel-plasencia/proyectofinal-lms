@@ -19,7 +19,7 @@ import java.util.List;
  * Controlador REST de Usuarios
  */
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/users")
 @RequiredArgsConstructor
 @Slf4j
 public class UserController {

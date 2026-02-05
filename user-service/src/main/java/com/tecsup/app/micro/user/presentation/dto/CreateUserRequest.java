@@ -9,26 +9,23 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * DTO para crear un usuario
+ * DTO para crear un usuario (TRABAJO_FINAL.md: full_name, email, status)
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateUserRequest {
-    
-    @NotBlank(message = "Name is required")
-    @Size(max = 100, message = "Name must not exceed 100 characters")
-    private String name;
-    
+
+    @NotBlank(message = "Full name is required")
+    @Size(max = 150, message = "Full name must not exceed 150 characters")
+    private String fullName;
+
     @NotBlank(message = "Email is required")
     @Email(message = "Email must be valid")
-    @Size(max = 100, message = "Email must not exceed 100 characters")
+    @Size(max = 120, message = "Email must not exceed 120 characters")
     private String email;
-    
-    @Size(max = 20, message = "Phone must not exceed 20 characters")
-    private String phone;
-    
-    @Size(max = 255, message = "Address must not exceed 255 characters")
-    private String address;
+
+    @Size(max = 30, message = "Status must not exceed 30 characters")
+    private String status;
 }

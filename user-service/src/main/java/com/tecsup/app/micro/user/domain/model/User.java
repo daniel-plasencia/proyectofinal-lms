@@ -9,27 +9,25 @@ import java.time.LocalDateTime;
 
 /**
  * User Domain Model (Core Business Entity)
- * Esta es la entidad de dominio pura, sin dependencias de frameworks
+ * Alineado con TRABAJO_FINAL.md: full_name, email, status, created_at
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
-    
+
     private Long id;
-    private String name;
+    private String fullName;
     private String email;
-    private String phone;
-    private String address;
+    private String status;
     private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    
+
     /**
      * Valida que el usuario tenga los datos mínimos requeridos
      */
     public boolean isValid() {
-        return name != null && !name.trim().isEmpty() 
+        return fullName != null && !fullName.trim().isEmpty()
             && email != null && !email.trim().isEmpty()
             && isValidEmail(email);
     }

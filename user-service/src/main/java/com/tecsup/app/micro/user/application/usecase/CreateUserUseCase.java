@@ -23,7 +23,7 @@ public class CreateUserUseCase {
         
         // Validar datos del usuario
         if (!user.isValid()) {
-            throw new InvalidUserDataException("Invalid user data. Name and valid email are required.");
+            throw new InvalidUserDataException("Invalid user data. Full name and valid email are required.");
         }
         
         // Verificar que el email no exista
