@@ -197,7 +197,7 @@ Objetivo: crear un usuario y un curso (si no existen), luego crear una matrícul
 
 - **Método:** POST  
 - **URL:** `http://localhost:8082/courses`  
-- **Body:** (igual que en 3, Paso 1.1). Anota el `id` del curso.
+- **Body:** (igual que en **4**, Paso 1.1 – Crear curso). Anota el `id` del curso.
 
 ### Paso 2.4 – Listar cursos (opcional)
 
