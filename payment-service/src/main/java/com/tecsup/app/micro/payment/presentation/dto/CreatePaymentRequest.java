@@ -1,0 +1,26 @@
+package com.tecsup.app.micro.payment.presentation.dto;
+
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class CreatePaymentRequest {
+
+    @NotNull(message = "enrollmentId is required")
+    private Long enrollmentId;
+
+    @NotNull(message = "amount is required")
+    @DecimalMin(value = "0.01", message = "amount must be positive")
+    private BigDecimal amount;
+
+    private String status;  // APPROVED or REJECTED; default APPROVED if null
+}
