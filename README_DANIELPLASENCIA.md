@@ -29,7 +29,108 @@ En todas las peticiones usa **Header:** `Content-Type: application/json` cuando 
 
 ---
 
-## 3. Caso de uso 1: Publicar curso
+## 3. Flujo conceptual: REST, Kafka y BD
+
+A continuación se resume cómo interactúan los servicios a nivel **REST**, **Kafka** y **base de datos**.
+
+### 3.1 Base de datos (persistencia por servicio)
+
+Cada microservicio es dueño de su propia base de datos; no comparten tablas.
+
+```
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│  user-service   │     │ course-service  │     │enrollment-service│
+│      ↓          │     │      ↓          │     │       ↓          │
+│    userdb       │     │   coursedb      │     │  enrollmentdb   │
+│  (tabla users)  │     │ (tabla courses)  │     │(tabla enrollments)│
+└─────────────────┘     └─────────────────┘     └─────────────────┘
+
+┌─────────────────┐     ┌─────────────────┐
+│ payment-service │     │notification-service│
+│      ↓          │     │       ↓          │
+│   paymentdb     │     │  notificationdb  │
+│ (tabla payments)│     │(tabla notifications)│
+└─────────────────┘     └─────────────────┘
+```
+
+### 3.2 REST (RestTemplate): llamadas síncronas
+
+Solo **enrollment-service** llama a otros servicios por HTTP (RestTemplate):
+
+- Al **crear una matrícula** (POST /enrollments), enrollment-service:
+  1. Llama a **user-service** (GET /users/{id}) para validar que el usuario existe.
+  2. Llama a **course-service** (GET /courses/{id}) para validar que el curso existe.
+  3. Si ambos responden OK, guarda la matrícula en **enrollmentdb**.
+
+```
+   Cliente (Postman)
+        │
+        │  POST /enrollments { userId, courseId }
+        ▼
+   ┌─────────────────────┐
+   │ enrollment-service  │
+   │        │            │
+   │        ├── GET ──────────► user-service (userdb)
+   │        │   /users/{id}    (validar usuario)
+   │        │
+   │        ├── GET ──────────► course-service (coursedb)
+   │        │   /courses/{id}  (validar curso)
+   │        │
+   │        └── INSERT ───────► enrollmentdb (enrollments)
+   └─────────────────────┘
+```
+
+### 3.3 Kafka: eventos asíncronos (publicar / consumir)
+
+Los servicios se comunican por **temas Kafka** sin llamarse por REST. Quién publica y quién consume:
+
+| Topic                   | Quién publica           | Quién consume                          |
+|-------------------------|--------------------------|----------------------------------------|
+| lms.course.events       | course-service           | notification-service                   |
+| lms.enrollment.events  | enrollment-service       | notification-service                   |
+| lms.payment.events     | payment-service          | enrollment-service, notification-service |
+
+Flujo conceptual de eventos:
+
+```
+  ┌──────────────────┐                    ┌─────────────────────┐
+  │ course-service   │── CoursePublished ─►│ lms.course.events   │──► notification-service
+  └──────────────────┘   Event            └─────────────────────┘         (escribe notifications)
+        │
+        │ escribe coursedb
+
+  ┌──────────────────┐                    ┌─────────────────────┐
+  │ enrollment-service│── EnrollmentCreated ─►│ lms.enrollment.events │──► notification-service
+  │                  │   EnrollmentUpdated  │                     │         (escribe notifications)
+  └────────┬─────────┘                    └─────────────────────┘
+        │ escribe enrollmentdb                  ▲
+        │                                       │ consume
+        │                                       │
+  ┌─────┴──────────────────┐            ┌─────┴─────────────┐
+  │ payment-service        │── Payment  │ lms.payment.events │
+  │ (escribe paymentdb)    │   Approved/│                   │
+  └────────────────────────┘   Rejected  └─────────┬─────────┘
+        │                         Event            │
+        │                                          ├──► enrollment-service (actualiza enrollment
+        │                                          │    a CONFIRMED/CANCELLED, publica EnrollmentUpdated)
+        │                                          │
+        │                                          └──► notification-service (escribe notifications)
+```
+
+### 3.4 Flujo end-to-end en tres pasos (conceptual)
+
+1. **Matrícula (REST + Kafka + BD)**  
+   Cliente → POST /enrollments → enrollment-service valida por REST (user, course) → escribe enrollmentdb → publica EnrollmentCreatedEvent → notification-service consume y escribe notificationdb.
+
+2. **Pago (REST + Kafka + BD)**  
+   Cliente → POST /payments → payment-service escribe paymentdb → publica PaymentApprovedEvent o PaymentRejectedEvent → enrollment-service consume, actualiza enrollmentdb (CONFIRMED/CANCELLED) y publica EnrollmentUpdatedEvent → notification-service consume y escribe notificationdb.
+
+3. **Publicar curso (REST + Kafka + BD)**  
+   Cliente → POST /courses/{id}/publish → course-service actualiza coursedb → publica CoursePublishedEvent → notification-service consume y escribe notificationdb.
+
+---
+
+## 4. Caso de uso 1: Publicar curso
 
 Objetivo: crear un curso, publicarlo y que notification-service reciba el evento (opcional) y cree una notificación.
 
@@ -66,7 +167,7 @@ Objetivo: crear un curso, publicarlo y que notification-service reciba el evento
 
 ---
 
-## 4. Caso de uso 2: Solicitud de matrícula
+## 5. Caso de uso 2: Solicitud de matrícula
 
 Objetivo: crear un usuario y un curso (si no existen), luego crear una matrícula. enrollment-service validará usuario y curso por RestTemplate y publicará EnrollmentCreatedEvent; notification-service creará una notificación.
 
@@ -137,7 +238,7 @@ Sustituye `1` y `1` por los ids reales de un usuario y un curso existentes.
 
 ---
 
-## 5. Caso de uso 3: Pago (aprobado y rechazado)
+## 6. Caso de uso 3: Pago (aprobado y rechazado)
 
 Objetivo: registrar un pago asociado a una matrícula. payment-service publica el evento; enrollment-service actualiza la matrícula a CONFIRMED o CANCELLED; notification-service crea la notificación correspondiente.
 
@@ -190,7 +291,7 @@ Sustituye `2` por el id de esa segunda matrícula.
 
 ---
 
-## 6. Notificaciones
+## 7. Notificaciones
 
 El notification-service consume eventos de Kafka y guarda notificaciones en la base de datos. No es obligatorio tener un endpoint para listarlas; si existe, puedes usarlo. En cualquier caso puedes comprobar los resultados en la base **notificationdb**, tabla **notifications**.
 
@@ -208,7 +309,7 @@ El notification-service consume eventos de Kafka y guarda notificaciones en la b
 
 ---
 
-## 7. Resumen del flujo completo (orden sugerido)
+## 8. Resumen del flujo completo (orden sugerido)
 
 1. **User:** POST `/users` → anotar `userId`.  
 2. **Course:** POST `/courses` → anotar `courseId`.  
@@ -222,7 +323,7 @@ El notification-service consume eventos de Kafka y guarda notificaciones en la b
 
 ---
 
-## 8. Health de todos los servicios
+## 9. Health de todos los servicios
 
 Puedes verificar que cada servicio esté arriba con:
 
@@ -238,7 +339,7 @@ Todos deben responder 200 OK con un mensaje de tipo “Service running”.
 
 ---
 
-## 9. Errores frecuentes
+## 10. Errores frecuentes
 
 - **502 al crear matrícula:** El `userId` o `courseId` no existe en user-service o course-service. Usa ids que devuelvan GET `/users` y GET `/courses`.  
 - **Matrícula no pasa a CONFIRMED/CANCELLED:** Asegúrate de que Kafka esté levantado y de que enrollment-service y payment-service estén en ejecución cuando hagas el POST a `/payments`.  
