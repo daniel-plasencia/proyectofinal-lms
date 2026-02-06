@@ -12,10 +12,10 @@
     </parent>
     
     <groupId>com.tecsup.app.micro</groupId>
-    <artifactId>user-service</artifactId>
+    <artifactId>notification-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>user-service</name>
-    <description>User Service with Clean Architecture</description>
+    <name>notification-service</name>
+    <description>Notification Service - LMS (TRABAJO_FINAL) - Kafka consumer</description>
     
     <properties>
         <java.version>21</java.version>
@@ -35,6 +35,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
         </dependency>
         
         <!-- PostgreSQL Driver -->
@@ -103,6 +108,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
+                    <mainClass>com.tecsup.app.micro.notification.NotificationServiceApplication</mainClass>
                     <excludes>
                         <exclude>
                             <groupId>org.projectlombok</groupId>

@@ -6,8 +6,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
 
 /**
- * Configuración de Kafka (TRABAJO_FINAL - evento opcional CoursePublishedEvent).
- * Topic: lms.course.events
+ * KafkaConfig (README_KAFKA.md § II.3).
+ * Topic: lms.course.events (TRABAJO_FINAL Tabla 3 - opcional).
  */
 @EnableKafka
 @Configuration

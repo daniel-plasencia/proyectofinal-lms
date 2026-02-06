@@ -5,6 +5,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
 
+/**
+ * KafkaConfig (README_KAFKA.md § II.3).
+ * Topic: lms.payment.events (TRABAJO_FINAL Tabla 3).
+ */
 @EnableKafka
 @Configuration
 public class KafkaConfig {
