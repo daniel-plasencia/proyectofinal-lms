@@ -1,0 +1,40 @@
+package com.tecsup.app.micro.enrollment.infrastructure.persistence.entity;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "enrollments")
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class EnrollmentEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
+
+    @Column(name = "course_id", nullable = false)
+    private Long courseId;
+
+    @Column(nullable = false, length = 40)
+    private String status;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        if (createdAt == null) createdAt = LocalDateTime.now();
+        if (status == null) status = "PENDING_PAYMENT";
+    }
+}
