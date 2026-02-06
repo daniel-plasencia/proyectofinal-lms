@@ -99,10 +99,10 @@ Flujo conceptual de eventos:
         │
         │ escribe coursedb
 
-  ┌──────────────────┐                    ┌─────────────────────┐
-  │ enrollment-service│── EnrollmentCreated ─►│ lms.enrollment.events │──► notification-service
-  │                  │   EnrollmentUpdated  │                     │         (escribe notifications)
-  └────────┬─────────┘                    └─────────────────────┘
+  ┌─────────────────────┐                  ┌─────────────────────┐
+  │ enrollment-service  │── EnrollmentCreated ─►│ lms.enrollment.events │──► notification-service
+  │                     │   EnrollmentUpdated  │                     │         (escribe notifications)
+  └──────────┬──────────┘                  └─────────────────────┘
         │ escribe enrollmentdb                  ▲
         │                                       │ consume
         │                                       │
@@ -228,13 +228,15 @@ Sustituye `1` y `1` por los ids reales de un usuario y un curso existentes.
 
 - **Método:** GET  
 - **URL:** `http://localhost:8083/enrollments/1`  
+  Sustituye `1` por el id de la matrícula que quieras consultar.
 - **Resultado esperado:** 200 OK con la matrícula en estado `PENDING_PAYMENT`.
 
 ### Paso 2.7 – Listar matrículas por usuario (opcional)
 
 - **Método:** GET  
 - **URL:** `http://localhost:8083/enrollments?userId=1`  
-- **Resultado esperado:** 200 OK con un array de matrículas del usuario 1.
+  Sustituye `1` por el id del usuario.
+- **Resultado esperado:** 200 OK con un array de matrículas del usuario indicado.
 
 ---
 
@@ -255,7 +257,7 @@ Objetivo: registrar un pago asociado a una matrícula. payment-service publica e
 }
 ```
 
-Sustituye `1` por el **enrollmentId** de una matrícula en estado `PENDING_PAYMENT` (obtenido en el Caso 2).
+Sustituye `1` por el **enrollmentId** de una matrícula en estado `PENDING_PAYMENT` (obtenido en la sección 5, Paso 2.5).
 
 - **Resultado esperado:** 201 Created. Respuesta con el pago creado y `status: "APPROVED"` (por defecto).
 
@@ -263,7 +265,7 @@ Sustituye `1` por el **enrollmentId** de una matrícula en estado `PENDING_PAYME
 
 ### Paso 3.2 – Pago rechazado
 
-Primero crea **otra matrícula** (repite Pasos 2.5 con otro usuario/curso o los mismos) para tener una matrícula aún en `PENDING_PAYMENT`. Luego:
+Primero crea **otra matrícula** (repite los Pasos 2.1 a 2.5 de la sección 5 con otro usuario/curso o los mismos) para tener una matrícula aún en `PENDING_PAYMENT`. Luego:
 
 - **Método:** POST  
 - **URL:** `http://localhost:8085/payments`  
@@ -319,7 +321,7 @@ El notification-service consume eventos de Kafka y guarda notificaciones en la b
 6. **Comprobar:** GET `/enrollments/{enrollmentId}` → `status: "CONFIRMED"`.  
 7. **Payment rechazado (otra matrícula):** crear otra matrícula, luego POST `/payments` con `enrollmentId` de esa matrícula y `"status": "REJECTED"`.  
 8. **Comprobar:** GET `/enrollments/{enrollmentId}` → `status: "CANCELLED"`.  
-9. **Notificaciones:** revisar tabla `notifications` en notificationdb o GET `/notifications/{id}` si está disponible.
+9. **Notificaciones:** revisar tabla `notifications` en notificationdb o GET `http://localhost:8084/notifications/1` (sustituye 1 por el id que corresponda) si el servicio lo expone.
 
 ---
 
